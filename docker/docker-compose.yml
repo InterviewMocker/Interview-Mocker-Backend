@@ -1,0 +1,63 @@
+# AI模拟面试平台 - Docker Compose配置
+# 开发环境使用
+
+version: '3.8'
+
+services:
+  # 主服务
+  main-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=development
+      - DEBUG=true
+      - DATABASE_URL=sqlite+aiosqlite:///./data/interview_mocker.db
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret-key}
+      - REDIS_HOST=redis
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    volumes:
+      - ../data:/app/data
+      - ..:/app
+    depends_on:
+      - redis
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # Redis (可选，开发阶段可不使用)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # AI数字人微服务 (预留)
+  # interview-avatar-service:
+  #   build:
+  #     context: ../interview_avatar_service
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8001:8001"
+  #   environment:
+  #     - MAIN_SERVICE_URL=http://main-service:8000
+  #     - REDIS_HOST=redis
+  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
+  #   depends_on:
+  #     - redis
+  #     - main-service
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  redis-data:
