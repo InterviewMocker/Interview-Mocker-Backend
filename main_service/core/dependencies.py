@@ -97,7 +97,7 @@ async def _get_or_create_dev_user(db: AsyncSession) -> User:
             id=DEV_USER_ID,
             username="dev_user",
             password_hash=hash_password("dev123456"),
-            nickname="开发测试用户",
+            real_name="开发测试用户",
             status="active",
             role="admin"
         )
