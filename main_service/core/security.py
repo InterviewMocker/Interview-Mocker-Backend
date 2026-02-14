@@ -6,23 +6,29 @@ from typing import Optional
 import uuid
 
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 
 from .config import settings
 
 
-# 密码加密上下文
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
 def hash_password(password: str) -> str:
-    """加密密码"""
-    return pwd_context.hash(password)
+    """加密密码（bcrypt 限制 72 字节，自动截断）"""
+    # bcrypt 最大支持 72 字节
+    password_bytes = password.encode('utf-8')[:72]
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """验证密码"""
-    return pwd_context.verify(plain_password, hashed_password)
+    # 同样截断到 72 字节以匹配哈希时的处理
+    password_bytes = plain_password.encode('utf-8')[:72]
+    hashed_bytes = hashed_password.encode('utf-8')
+    try:
+        return bcrypt.checkpw(password_bytes, hashed_bytes)
+    except Exception:
+        return False
 
 
 def create_access_token(

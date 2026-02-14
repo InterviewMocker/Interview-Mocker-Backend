@@ -3,17 +3,33 @@
 """
 from datetime import datetime, date
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class UserCreate(BaseModel):
     """用户注册请求"""
-    username: str = Field(..., min_length=3, max_length=50)
-    email: Optional[EmailStr] = None
-    password: str = Field(..., min_length=8)
-    real_name: Optional[str] = None
-    school: Optional[str] = None
-    major: Optional[str] = None
+    username: str = Field(..., min_length=3, max_length=50, description="用户名")
+    email: Optional[EmailStr] = Field(default=None, description="邮箱地址")
+    password: str = Field(..., min_length=8, description="密码")
+    real_name: Optional[str] = Field(default=None, description="真实姓名")
+    school: Optional[str] = Field(default=None, description="学校")
+    major: Optional[str] = Field(default=None, description="专业")
+    
+    @field_validator('email', mode='before')
+    @classmethod
+    def empty_string_to_none(cls, v):
+        """将空字符串转换为 None"""
+        if v == '' or v is None:
+            return None
+        return v
+    
+    @field_validator('real_name', 'school', 'major', mode='before')
+    @classmethod
+    def empty_str_to_none(cls, v):
+        """将空字符串转换为 None"""
+        if v == '' or v is None:
+            return None
+        return v
 
 
 class UserLogin(BaseModel):

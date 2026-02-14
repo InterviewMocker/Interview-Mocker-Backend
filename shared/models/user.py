@@ -97,7 +97,7 @@ class UserProfile(Base, TimestampMixin):
     # 统计数据
     total_interviews: Mapped[int] = mapped_column(Integer, default=0)
     total_questions_answered: Mapped[int] = mapped_column(Integer, default=0)
-    total_study_hours: Mapped[float] = mapped_column(Integer, default=0)
+    total_study_hours: Mapped[int] = mapped_column(Integer, default=0)
     
     # 关系
     user: Mapped["User"] = relationship("User", back_populates="profile")

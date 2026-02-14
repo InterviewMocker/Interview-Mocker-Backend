@@ -3,7 +3,7 @@
 """
 from typing import Optional
 
-from sqlalchemy import String, Integer, Text, JSON
+from sqlalchemy import String, Integer, Text, JSON, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin, SoftDeleteMixin, generate_uuid
@@ -60,6 +60,7 @@ class PositionKnowledgePoint(Base, TimestampMixin):
     )
     position_id: Mapped[str] = mapped_column(
         String(36),
+        ForeignKey("positions.id", ondelete="CASCADE"),
         nullable=False
     )
     

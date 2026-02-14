@@ -20,8 +20,11 @@ async def register(
     db: AsyncSession = Depends(get_db)
 ):
     """用户注册"""
+    # 调试输出
+    print(f"[DEBUG] 注册请求数据: username={user_data.username}, password长度={len(user_data.password)}")
     auth_service = AuthService(db)
     user = await auth_service.register(user_data)
+    print(f"[DEBUG] 注册成功: user_id={user.id}")
     return ResponseModel(
         message="注册成功",
         data=UserResponse.model_validate(user)
