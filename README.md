@@ -40,31 +40,51 @@
 Interview-Mocker-Backend/
 ├── shared/                        # 【共享包】两个服务都依赖
 │   ├── models/                    # 共享数据模型 (SQLAlchemy)
+│   │   ├── base.py               # 模型基类、Mixin
+│   │   ├── user.py               # User, UserProfile, UserLoginLog
+│   │   ├── position.py           # Position, PositionKnowledgePoint
+│   │   ├── question.py           # Question, PositionQuestion
+│   │   ├── interview.py          # InterviewSession, InterviewQARecord
+│   │   ├── evaluation.py         # EvaluationReport, ImprovementPlan
+│   │   ├── knowledge.py          # KnowledgeDocument, DocumentChunk
+│   │   └── system.py             # SystemConfig
 │   ├── database/                  # 数据库连接配置
+│   │   └── connection.py         # 异步引擎、会话工厂
 │   ├── config/                    # 共享配置
-│   └── schemas/                   # 共享 Pydantic Schemas
+│   │   └── settings.py           # SharedSettings
+│   └── utils/                     # 共享工具函数
 │
 ├── main_service/                  # 【主服务】团队A开发 - 端口 8000
 │   ├── api/v1/                    # API 路由
+│   │   ├── auth.py               # 认证授权
+│   │   ├── users.py              # 用户管理
+│   │   ├── positions.py          # 岗位管理
+│   │   ├── questions.py          # 题库管理
+│   │   ├── interviews.py         # 面试会话
+│   │   └── knowledge.py          # 知识库
 │   ├── core/                      # 核心配置
-│   ├── models/                    # 服务特定模型
+│   │   ├── config.py             # 服务配置
+│   │   ├── database.py           # 数据库（重导出共享）
+│   │   ├── dependencies.py       # 依赖注入
+│   │   └── security.py           # JWT/密码处理
+│   ├── models/                    # 重导出共享模型
 │   ├── schemas/                   # Pydantic 模型
 │   ├── services/                  # 业务逻辑
 │   └── main.py                    # 入口文件
 │
 ├── interview_avatar_service/      # 【数字人服务】团队B开发 - 端口 8001
-│   ├── api/                       # API 路由
 │   ├── clients/                   # HTTP 客户端 (调用主服务)
-│   ├── services/                  # 业务逻辑
-│   ├── handlers/                  # 面试流程处理
+│   │   └── main_service.py       # MainServiceClient
 │   └── main.py                    # 入口文件
 │
-├── migrations/                    # 数据库迁移脚本 (Alembic)
 ├── scripts/                       # 开发脚本
+│   ├── migrate.py                # 数据库迁移管理
+│   └── start_services.py         # 多服务启动脚本
 ├── data/                          # 数据目录 (SQLite, ChromaDB)
 ├── docker/                        # Docker 配置
 ├── tests/                         # 测试代码
-└── docs/                          # 设计文档
+├── docs/                          # 设计文档
+└── run.py                         # 快速启动脚本
 ```
 
 ## 快速开始
@@ -101,13 +121,20 @@ uv run alembic upgrade head
 
 ### 4. 启动服务
 
-#### 方式一：同时启动两个服务
+#### 方式一：使用 run.py（推荐）
 
 ```bash
-uv run python scripts/start_services.py
+# 同时启动两个服务
+uv run python run.py
+
+# 仅启动主服务
+uv run python run.py main
+
+# 仅启动数字人服务
+uv run python run.py avatar
 ```
 
-#### 方式二：分别启动（推荐开发时使用）
+#### 方式二：分别启动（调试时使用）
 
 **终端 1 - 启动主服务：**
 ```bash
@@ -117,6 +144,12 @@ uv run uvicorn main_service.main:app --reload --port 8000
 **终端 2 - 启动数字人服务：**
 ```bash
 uv run uvicorn interview_avatar_service.main:app --reload --port 8001
+```
+
+#### 方式三：使用启动脚本
+
+```bash
+uv run python scripts/start_services.py
 ```
 
 ### 5. 访问 API 文档
@@ -236,9 +269,9 @@ uv run pytest --cov=main_service --cov=interview_avatar_service
 
 详细设计文档位于 `docs/` 目录：
 
-- `后端总体架构.md` - 系统整体架构设计
-- `数字人面试服务架构设计V2.md` - 数字人服务详细设计
+- `团队开发指南.md` - **两个团队的开发协作指南**
 - `独立服务架构与数据库同步方案.md` - 服务独立开发方案
+- `数字人面试服务架构设计V2.md` - 数字人服务详细设计
 - `数据表设计.md` - 数据库表设计
 - `知识库设计.md` - RAG 知识库设计
 - `身份认证设计.md` - JWT 认证设计
