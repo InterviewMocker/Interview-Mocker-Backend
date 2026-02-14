@@ -35,12 +35,22 @@ class Position(Base, TimestampMixin, SoftDeleteMixin):
     # 难度级别
     difficulty_level: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     
+    # 学历要求 (可选: 不限/大专/本科/硕士/博士)
+    education_requirement: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    
     # 关联配置
     default_question_count: Mapped[int] = mapped_column(Integer, default=10)
     default_duration: Mapped[int] = mapped_column(Integer, default=30)
     
     # 状态
     status: Mapped[str] = mapped_column(String(20), default="active")
+    
+    # 创建者
+    created_by: Mapped[Optional[str]] = mapped_column(
+        String(36),
+        ForeignKey("users.id"),
+        nullable=True
+    )
     
     # 关系
     knowledge_points: Mapped[list["PositionKnowledgePoint"]] = relationship(

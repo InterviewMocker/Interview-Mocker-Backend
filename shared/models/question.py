@@ -5,9 +5,44 @@ from typing import Optional
 from decimal import Decimal
 
 from sqlalchemy import String, Integer, Text, JSON, DECIMAL, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin, SoftDeleteMixin, generate_uuid
+
+
+class QuestionBank(Base, TimestampMixin, SoftDeleteMixin):
+    """题库表"""
+    __tablename__ = "question_banks"
+    
+    id: Mapped[str] = mapped_column(
+        String(36),
+        primary_key=True,
+        default=generate_uuid
+    )
+    
+    # 基本信息
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    
+    # 分类
+    category: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    tags: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    
+    # 状态
+    status: Mapped[str] = mapped_column(String(20), default="active")
+    
+    # 创建者
+    created_by: Mapped[Optional[str]] = mapped_column(
+        String(36),
+        ForeignKey("users.id"),
+        nullable=True
+    )
+    
+    # 关系
+    questions: Mapped[list["Question"]] = relationship(
+        "Question",
+        back_populates="question_bank"
+    )
 
 
 class Question(Base, TimestampMixin, SoftDeleteMixin):
@@ -18,6 +53,13 @@ class Question(Base, TimestampMixin, SoftDeleteMixin):
         String(36),
         primary_key=True,
         default=generate_uuid
+    )
+    
+    # 所属题库
+    bank_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("question_banks.id", ondelete="CASCADE"),
+        nullable=False
     )
     
     # 题目内容
@@ -57,6 +99,12 @@ class Question(Base, TimestampMixin, SoftDeleteMixin):
         String(36),
         ForeignKey("users.id"),
         nullable=True
+    )
+    
+    # 关系
+    question_bank: Mapped["QuestionBank"] = relationship(
+        "QuestionBank",
+        back_populates="questions"
     )
 
 

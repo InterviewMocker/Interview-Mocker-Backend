@@ -4,7 +4,7 @@
 from .base import Base, TimestampMixin, SoftDeleteMixin, generate_uuid
 from .user import User, UserProfile, UserLoginLog
 from .position import Position, PositionKnowledgePoint
-from .question import Question, PositionQuestion
+from .question import QuestionBank, Question, PositionQuestion
 from .interview import InterviewSession, InterviewQARecord
 from .evaluation import EvaluationReport, ImprovementPlan
 from .knowledge import KnowledgeDocument, DocumentChunk
@@ -24,6 +24,7 @@ __all__ = [
     "Position",
     "PositionKnowledgePoint",
     # Question
+    "QuestionBank",
     "Question",
     "PositionQuestion",
     # Interview

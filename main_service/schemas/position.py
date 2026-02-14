@@ -16,6 +16,7 @@ class PositionCreate(BaseModel):
     required_skills: Optional[List[str]] = None
     skill_weights: Optional[dict] = None
     difficulty_level: Optional[str] = None
+    education_requirement: Optional[str] = Field(default=None, description="学历要求: 不限/大专/本科/硕士/博士")
     default_question_count: int = 10
     default_duration: int = 30
 
@@ -29,6 +30,7 @@ class PositionUpdate(BaseModel):
     required_skills: Optional[List[str]] = None
     skill_weights: Optional[dict] = None
     difficulty_level: Optional[str] = None
+    education_requirement: Optional[str] = None
     default_question_count: Optional[int] = None
     default_duration: Optional[int] = None
     status: Optional[str] = None
@@ -43,9 +45,11 @@ class PositionResponse(BaseModel):
     description: Optional[str] = None
     required_skills: Optional[List[str]] = None
     difficulty_level: Optional[str] = None
+    education_requirement: Optional[str] = None
     default_question_count: int
     default_duration: int
     status: str
+    created_by: Optional[str] = None
     created_at: datetime
     
     class Config:

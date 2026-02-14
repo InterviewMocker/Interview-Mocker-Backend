@@ -35,6 +35,7 @@ dependencies = [
     "markdown>=3.5.2",
     # Redis (optional for production)
     "redis>=5.0.1",
+    "alembic>=1.18.4",
 ]
 
 [project.optional-dependencies]

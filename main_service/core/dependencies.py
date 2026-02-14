@@ -10,31 +10,43 @@ from sqlalchemy import select
 
 from .database import get_db
 from .security import decode_token
+from .config import settings
 from shared.models import User
 
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: AsyncSession = Depends(get_db)
 ) -> User:
     """
     获取当前登录用户
     
-    验证流程:
+    开发模式 (AUTH_DEV_MODE=true):
+    - 跳过JWT验证
+    - 返回或创建模拟用户
+    
+    生产模式:
     1. 提取Token
     2. 验证Token签名
     3. 检查Token是否过期
     4. 从数据库获取用户信息
     5. 检查用户状态
     """
+    # 开发模式：跳过认证，使用模拟用户
+    if settings.auth_dev_mode:
+        return await _get_or_create_dev_user(db)
+    
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="无效的认证凭证",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    
+    if credentials is None:
+        raise credentials_exception
     
     token = credentials.credentials
     payload = decode_token(token)
@@ -66,6 +78,32 @@ async def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="账号已被禁用"
         )
+    
+    return user
+
+
+async def _get_or_create_dev_user(db: AsyncSession) -> User:
+    """获取或创建开发模式用户"""
+    DEV_USER_ID = "dev-user-00000000-0000-0000-0000-000000000000"
+    
+    result = await db.execute(
+        select(User).where(User.id == DEV_USER_ID)
+    )
+    user = result.scalar_one_or_none()
+    
+    if user is None:
+        from .security import hash_password
+        user = User(
+            id=DEV_USER_ID,
+            username="dev_user",
+            password_hash=hash_password("dev123456"),
+            nickname="开发测试用户",
+            status="active",
+            role="admin"
+        )
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
     
     return user
 

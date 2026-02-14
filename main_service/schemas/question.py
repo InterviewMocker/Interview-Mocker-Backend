@@ -6,8 +6,41 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 
 
+class QuestionBankCreate(BaseModel):
+    """创建题库请求"""
+    name: str = Field(..., max_length=100)
+    description: Optional[str] = None
+    category: Optional[str] = None
+    tags: Optional[List[str]] = None
+
+
+class QuestionBankUpdate(BaseModel):
+    """更新题库请求"""
+    name: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+    tags: Optional[List[str]] = None
+    status: Optional[str] = None
+
+
+class QuestionBankResponse(BaseModel):
+    """题库响应"""
+    id: str
+    name: str
+    description: Optional[str] = None
+    category: Optional[str] = None
+    tags: Optional[List[str]] = None
+    status: str
+    created_by: Optional[str] = None
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
 class QuestionCreate(BaseModel):
     """创建题目请求"""
+    bank_id: str = Field(..., description="所属题库ID")
     title: str = Field(..., max_length=200)
     content: str
     type: str = Field(..., description="technical/scenario/algorithm/behavioral")
@@ -38,6 +71,7 @@ class QuestionUpdate(BaseModel):
 class QuestionResponse(BaseModel):
     """题目响应"""
     id: str
+    bank_id: str
     title: str
     content: str
     type: str
