@@ -78,6 +78,10 @@ class ExtractionTaskManager:
     def add_questions(self, task: ExtractionTask, new_questions: List[Dict]) -> None:
         """追加提取到的题目并保存"""
         task.questions.extend(new_questions)
+        self.save(task)
+
+    def increment_processed_chunks(self, task: ExtractionTask) -> None:
+        """增加已处理块计数"""
         task.processed_chunks += 1
         self.save(task)
 

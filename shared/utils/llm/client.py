@@ -248,24 +248,48 @@ class LLMClient:
                     body = await response.aread()
                     self._handle_error_status(response.status_code, body)
 
+                line_count = 0
                 async for line in response.aiter_lines():
+                    line_count += 1
+                    # 调试：打印原始行（前几行）
+                    if line_count <= 5:
+                        logger.info(f"[Stream] 原始行 {line_count}: {line[:200]}")
+                    
                     if not line.startswith("data: "):
                         continue
                     data_str = line[6:].strip()
                     if data_str == "[DONE]":
+                        logger.debug(f"[Stream] 收到 [DONE]，共 {line_count} 行")
                         return
                     try:
                         data = json.loads(data_str)
                         chunk = self._parse_stream_chunk(data)
                         if chunk.content or chunk.is_final:
                             yield chunk
-                    except json.JSONDecodeError:
+                    except json.JSONDecodeError as e:
+                        logger.warning(f"[Stream] JSON 解析失败: {e}, 数据: {data_str[:100]}")
                         continue
+                
+                logger.debug(f"[Stream] 流结束，共 {line_count} 行")
 
         except httpx.TimeoutException as e:
             raise LLMTimeoutError(f"流式请求超时: {e}", model=self.default_model)
         except httpx.ConnectError as e:
             raise LLMConnectionError(f"连接失败: {e}", model=self.default_model)
+        except httpx.HTTPStatusError as e:
+            raise LLMError(f"HTTP 状态错误: {e.response.status_code} - {e}", model=self.default_model)
+        except httpx.ReadError as e:
+            import traceback
+            logger.error(f"[Stream] ReadError 详情: {e}")
+            logger.error(f"[Stream] 堆栈:\n{traceback.format_exc()}")
+            raise LLMConnectionError(f"读取响应失败: {type(e).__name__} - {e}", model=self.default_model)
+        except Exception as e:
+            # 捕获所有其他异常并提供详细信息
+            import traceback
+            error_type = type(e).__name__
+            logger.error(f"[Stream] 未知异常: {error_type} - {e}")
+            logger.error(f"[Stream] 堆栈:\n{traceback.format_exc()}")
+            raise LLMError(f"流式请求异常 ({error_type}): {e}", model=self.default_model)
 
     async def chat_json(
         self,
@@ -425,6 +449,13 @@ class LLMClient:
 
         if status_code == 401:
             raise LLMAuthenticationError(f"认证失败: {error_msg}")
+        elif status_code == 403:
+            # 地区限制或访问被拒绝
+            if "Country" in error_msg or "region" in error_msg or "territory" in error_msg:
+                raise LLMAuthenticationError(
+                    f"LLM API 地区限制: {error_msg}。请检查 .env 配置，确保 OPENAI_BASE_URL 设置为可用的 API 地址（如国内中转服务）"
+                )
+            raise LLMAuthenticationError(f"访问被拒绝 (403): {error_msg}")
         elif status_code == 429:
             raise LLMRateLimitError(f"速率限制: {error_msg}")
         elif status_code == 400:
