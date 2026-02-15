@@ -294,9 +294,10 @@ class LLMClient:
             system_prompt = "你是一个有帮助的助手。" + suffix
 
         response = await self.chat(prompt, system_prompt=system_prompt, options=opts)
+        content = self._strip_markdown_fences(response.content)
 
         try:
-            return json.loads(response.content)
+            return json.loads(content)
         except json.JSONDecodeError as e:
             raise LLMResponseError(
                 f"LLM 返回的内容不是有效 JSON: {e}\n原始内容: {response.content[:500]}",
@@ -432,6 +433,21 @@ class LLMClient:
             raise LLMConnectionError(f"服务端错误 ({status_code}): {error_msg}")
         else:
             raise LLMError(f"HTTP {status_code}: {error_msg}")
+
+    @staticmethod
+    def _strip_markdown_fences(text: str) -> str:
+        """去除 LLM 返回内容中的 markdown 代码块标记（```json ... ```），支持截断响应"""
+        import re
+        stripped = text.strip()
+        # 完整代码块: ```json ... ```
+        match = re.search(r"```(?:json)?\s*\n?(.*?)\n?\s*```", stripped, re.DOTALL)
+        if match:
+            return match.group(1).strip()
+        # 截断响应: 只有开头 ```json 没有结尾 ```
+        match = re.match(r"```(?:json)?\s*\n?(.*)", stripped, re.DOTALL)
+        if match:
+            return match.group(1).strip()
+        return stripped
 
     @staticmethod
     def _parse_response(data: Dict) -> LLMResponse:
