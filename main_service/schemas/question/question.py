@@ -33,6 +33,7 @@ class QuestionBankResponse(BaseModel):
     status: str
     community_status: Optional[str] = None
     created_by: Optional[str] = None
+    creator_username: Optional[str] = None
     created_at: datetime
     
     class Config:

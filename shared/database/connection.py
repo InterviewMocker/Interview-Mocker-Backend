@@ -5,6 +5,8 @@ import os
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy import text
+from sqlalchemy.pool import NullPool
 
 from shared.config.settings import get_shared_settings
 
@@ -18,6 +20,11 @@ engine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,
     future=True,
+    poolclass=NullPool,
+    connect_args={
+        "check_same_thread": False,
+        "timeout": 30,  # 增加超时时间到30秒
+    }
 )
 
 # 创建异步会话工厂
@@ -46,8 +53,15 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
 async def init_shared_db():
     """初始化数据库表（使用共享模型）"""
     from shared.models import Base
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    
+    try:
+        # 创建表结构
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+            
+    except Exception as e:
+        print(f"[WARN] Database init warning: {e}")
+
 
 
 async def close_shared_db():

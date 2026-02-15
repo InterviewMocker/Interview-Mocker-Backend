@@ -46,6 +46,12 @@ class QuestionBank(Base, TimestampMixin, SoftDeleteMixin):
         "Question",
         back_populates="question_bank"
     )
+    
+    creator: Mapped[Optional["User"]] = relationship("User")
+
+    @property
+    def creator_username(self) -> Optional[str]:
+        return self.creator.username if self.creator else None
 
 
 class Question(Base, TimestampMixin, SoftDeleteMixin):

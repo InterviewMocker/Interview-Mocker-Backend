@@ -16,9 +16,6 @@ class Settings(BaseSettings):
     debug: bool = True
     api_v1_prefix: str = "/api/v1"
     
-    # 开发模式认证（true时跳过JWT验证，使用模拟用户）
-    auth_dev_mode: bool = False
-    
     # 服务器设置
     host: str = "0.0.0.0"
     port: int = 8000
@@ -60,6 +57,7 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False
+        extra = "ignore"
 
 
 @lru_cache()

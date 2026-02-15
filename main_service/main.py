@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .core.config import settings
-from .core.database import init_db, close_db
+from .core.database import init_db, close_db, get_db
 from .api import router as api_router
 
 

@@ -25,7 +25,7 @@ class QuestionBankService:
     async def get_by_id(self, bank_id: str) -> Optional[QuestionBank]:
         """根据ID获取题库（不做归属校验）"""
         result = await self.db.execute(
-            select(QuestionBank).where(
+            select(QuestionBank).options(selectinload(QuestionBank.creator)).where(
                 QuestionBank.id == bank_id,
                 QuestionBank.deleted_at == None
             )
@@ -35,7 +35,7 @@ class QuestionBankService:
     async def get_own_bank(self, bank_id: str, user_id: str) -> Optional[QuestionBank]:
         """获取当前用户拥有的题库"""
         result = await self.db.execute(
-            select(QuestionBank).where(
+            select(QuestionBank).options(selectinload(QuestionBank.creator)).where(
                 QuestionBank.id == bank_id,
                 QuestionBank.created_by == user_id,
                 QuestionBank.deleted_at == None
@@ -46,7 +46,7 @@ class QuestionBankService:
     async def get_accessible_bank(self, bank_id: str, user_id: str) -> Optional[QuestionBank]:
         """获取用户可访问的题库（自己的 或 社区已上架的）"""
         result = await self.db.execute(
-            select(QuestionBank).where(
+            select(QuestionBank).options(selectinload(QuestionBank.creator)).where(
                 QuestionBank.id == bank_id,
                 QuestionBank.deleted_at == None
             )
@@ -67,7 +67,7 @@ class QuestionBankService:
         status: Optional[str] = None
     ) -> Tuple[List[QuestionBank], int]:
         """获取当前用户的题库列表"""
-        query = select(QuestionBank).where(
+        query = select(QuestionBank).options(selectinload(QuestionBank.creator)).where(
             QuestionBank.created_by == user_id,
             QuestionBank.deleted_at == None
         )
@@ -96,7 +96,7 @@ class QuestionBankService:
         category: Optional[str] = None,
     ) -> Tuple[List[QuestionBank], int]:
         """获取社区题库列表（仅 approved）"""
-        query = select(QuestionBank).where(
+        query = select(QuestionBank).options(selectinload(QuestionBank.creator)).where(
             QuestionBank.community_status == "approved",
             QuestionBank.deleted_at == None
         )
@@ -122,7 +122,7 @@ class QuestionBankService:
         page_size: int = 20,
     ) -> Tuple[List[QuestionBank], int]:
         """管理员获取待审核题库列表"""
-        query = select(QuestionBank).where(
+        query = select(QuestionBank).options(selectinload(QuestionBank.creator)).where(
             QuestionBank.community_status == "pending",
             QuestionBank.deleted_at == None
         )
