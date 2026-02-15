@@ -39,8 +39,13 @@ class Settings(BaseSettings):
     
     # LLM设置
     openai_api_key: Optional[str] = None
+    openai_base_url: Optional[str] = None
     llm_provider: str = "openai"
     llm_model: str = "gpt-4"
+    llm_temperature: float = 0.7
+    llm_max_tokens: int = 2048
+    llm_timeout: int = 120
+    llm_max_retries: int = 3
     
     # ChromaDB设置
     chroma_persist_directory: str = "./data/chroma"
