@@ -3,6 +3,7 @@
 """
 from .question import (
     QuestionBankCreate, QuestionBankUpdate, QuestionBankResponse,
+    CommunityReviewRequest,
     QuestionCreate, QuestionBatchCreateItem, QuestionBatchCreate, QuestionBatchCreateResponse,
     QuestionUpdate, QuestionResponse, QuestionDetailResponse,
 )
@@ -12,7 +13,7 @@ from .extraction import (
 )
 
 __all__ = [
-    "QuestionBankCreate", "QuestionBankUpdate", "QuestionBankResponse",
+    "QuestionBankCreate", "QuestionBankUpdate", "QuestionBankResponse", "CommunityReviewRequest",
     "QuestionCreate", "QuestionBatchCreateItem", "QuestionBatchCreate", "QuestionBatchCreateResponse",
     "QuestionUpdate", "QuestionResponse", "QuestionDetailResponse",
     "ExtractionTaskResponse", "ExtractionTaskListItem",

@@ -31,11 +31,17 @@ class QuestionBankResponse(BaseModel):
     category: Optional[str] = None
     tags: Optional[List[str]] = None
     status: str
+    community_status: Optional[str] = None
     created_by: Optional[str] = None
     created_at: datetime
     
     class Config:
         from_attributes = True
+
+
+class CommunityReviewRequest(BaseModel):
+    """社区审核请求"""
+    action: str = Field(..., description="approve/reject/delist")
 
 
 class QuestionCreate(BaseModel):

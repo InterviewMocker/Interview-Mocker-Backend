@@ -108,6 +108,18 @@ async def _get_or_create_dev_user(db: AsyncSession) -> User:
     return user
 
 
+async def get_current_admin(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    """获取当前管理员用户，非管理员返回 403"""
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="需要管理员权限"
+        )
+    return current_user
+
+
 async def get_current_active_user(
     current_user: User = Depends(get_current_user)
 ) -> User:

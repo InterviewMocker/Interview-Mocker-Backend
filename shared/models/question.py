@@ -31,6 +31,9 @@ class QuestionBank(Base, TimestampMixin, SoftDeleteMixin):
     # 状态
     status: Mapped[str] = mapped_column(String(20), default="active")
     
+    # 社区状态: null=私有, pending=待审核, approved=已上架, rejected=已拒绝
+    community_status: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    
     # 创建者
     created_by: Mapped[Optional[str]] = mapped_column(
         String(36),
