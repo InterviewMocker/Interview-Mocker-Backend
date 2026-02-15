@@ -12,7 +12,7 @@ from ...schemas.knowledge import (
     KnowledgeDocumentResponse, KnowledgeDocumentDetailResponse
 )
 from ...schemas.common import ResponseModel, PaginatedResponse
-from ...services.knowledge_service import KnowledgeDocumentService
+from ...services.knowledge import KnowledgeDocumentService
 from shared.models import User
 
 router = APIRouter()

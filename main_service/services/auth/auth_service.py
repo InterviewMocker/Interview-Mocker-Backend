@@ -9,15 +9,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from shared.models import User, UserProfile
-from ..schemas.user import UserCreate, UserLogin, TokenResponse, UserResponse
-from ..core.security import (
+from ...schemas.auth.user import UserCreate, UserLogin, TokenResponse, UserResponse
+from ...core.security import (
     hash_password,
     verify_password,
     create_access_token,
     create_refresh_token,
     validate_password_strength
 )
-from ..core.config import settings
+from ...core.config import settings
 
 
 class AuthService:

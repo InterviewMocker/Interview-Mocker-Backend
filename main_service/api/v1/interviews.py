@@ -11,7 +11,7 @@ from ...schemas.interview import (
     InterviewSessionCreate,
     InterviewSessionResponse,
     InterviewQARecordResponse,
-    AnswerSubmit
+    AnswerSubmit,
 )
 from ...schemas.common import ResponseModel, PaginatedResponse
 from shared.models import User

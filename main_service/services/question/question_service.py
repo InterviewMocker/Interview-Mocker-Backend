@@ -95,6 +95,19 @@ class QuestionService:
         await self.db.refresh(question)
         return question
     
+    async def batch_create(self, items: list, bank_id: str, created_by: Optional[str] = None) -> List[Question]:
+        """批量创建题目"""
+        questions = []
+        for item in items:
+            data = {**item, "bank_id": bank_id}
+            question = Question(**data, created_by=created_by)
+            self.db.add(question)
+            questions.append(question)
+        await self.db.commit()
+        for q in questions:
+            await self.db.refresh(q)
+        return questions
+
     async def get_by_id(self, question_id: str) -> Optional[Question]:
         """根据ID获取题目"""
         result = await self.db.execute(

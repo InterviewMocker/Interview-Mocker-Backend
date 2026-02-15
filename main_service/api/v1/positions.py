@@ -9,7 +9,7 @@ from ...core.database import get_db
 from ...core.dependencies import get_current_user
 from ...schemas.position import PositionCreate, PositionUpdate, PositionResponse
 from ...schemas.common import ResponseModel, PaginatedResponse
-from ...services.position_service import PositionService
+from ...services.position import PositionService
 from shared.models import User
 
 router = APIRouter()

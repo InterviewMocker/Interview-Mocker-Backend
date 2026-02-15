@@ -53,6 +53,32 @@ class QuestionCreate(BaseModel):
     scoring_criteria: Optional[dict] = None
 
 
+class QuestionBatchCreateItem(BaseModel):
+    """批量创建中的单道题目（bank_id 在外层统一指定）"""
+    title: str = Field(..., max_length=200)
+    content: str
+    type: str = Field(..., description="technical/scenario/algorithm/behavioral")
+    category: Optional[str] = None
+    difficulty: str = Field(..., description="easy/medium/hard")
+    difficulty_score: Optional[int] = Field(None, ge=1, le=10)
+    tags: Optional[List[str]] = None
+    reference_answer: Optional[str] = None
+    answer_key_points: Optional[List[str]] = None
+    scoring_criteria: Optional[dict] = None
+
+
+class QuestionBatchCreate(BaseModel):
+    """批量创建题目请求"""
+    bank_id: str = Field(..., description="所属题库ID")
+    questions: List[QuestionBatchCreateItem] = Field(..., min_length=1, max_length=100, description="题目列表，1-100 条")
+
+
+class QuestionBatchCreateResponse(BaseModel):
+    """批量创建题目响应"""
+    total: int = Field(..., description="成功创建的题目数量")
+    questions: List["QuestionResponse"] = Field(..., description="创建的题目列表")
+
+
 class QuestionUpdate(BaseModel):
     """更新题目请求"""
     title: Optional[str] = None

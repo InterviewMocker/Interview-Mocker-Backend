@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...core.database import get_db
 from ...core.dependencies import get_current_user
-from ...schemas.user import UserUpdate, UserResponse, UserProfileResponse
+from ...schemas.auth import UserUpdate, UserResponse, UserProfileResponse
 from ...schemas.common import ResponseModel
 from shared.models import User
 
